@@ -1,0 +1,18 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+#console-splitter {
+    height: 100%;
+    /* margin: 0.5em; */
+}
+
+#console {
+    /* margin: 1.5em; */
+    /* height: 10em; */
+}
+
+#console h3 {
+    margin: 0;
+}
