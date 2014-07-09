@@ -1,16 +1,23 @@
 module Flow
 
-using HttpCommon, Morsel
+using HttpCommon, Morsel, JSON
 
 
 app = Morsel.app()
-state = Dict()
+state = {:console => {:input => "",
+                      :output => ""}}
 
 
 ## utility
 load_static(path) = open(readall, Pkg.dir("Flow") * "/" * path)
 
-assoc(m, k) = m[k]
+function get_in(m, ks)
+    n = m
+    for k = ks
+        n = n[k]
+    end
+    n
+end
 
 function assoc_in(m, ks, v)
     merge(m, assoc_in(m, ks, v, 1))
@@ -31,13 +38,11 @@ end
 function assoc_in!(m, ks, v)
     n = m
     for k = ks[1:end-1]
-        println(n)
         if !haskey(n, k)
             n[k] = Dict()
         end
         n = n[k]
     end
-    println(n)
     n[ks[end]] = v
 end
 
@@ -63,15 +68,34 @@ get(app, "/static/js/<path::%.*>") do req, res
 end
 
 get(app, "/eval") do req, res
-    ## res.headers["Content-Type"] = mimetypes["json"]
+    res.headers["Content-Type"] = mimetypes["json"]
     text = urlparam(req, :text)
     ptext = parse(text)
     r = eval(ptext)
-    string(r)
+    json(r)
+end
+
+put(app, "/store") do req, res
+    ks = map(symbol, split(urlparam(req, :keys), ' '))
+    v = urlparam(req, :val)
+    store(ks, v)
+    "ok"
+end
+
+get(app, "/fetch") do req, res
+    res.headers["Content-Type"] = mimetypes["json"]
+    ks = map(symbol, split(urlparam(req, :keys), ' '))
+    json(fetch(ks))
 end
 
 
 ## process
 start() = Morsel.start(app, 8000)
+
+store(ks, v) = assoc_in!(state, ks, v)
+fetch(ks) = get_in(state, ks)
+
+eval_console() = store([:console, :output],
+                       eval(parse(fetch([:console, :input]))))
 
 end # module

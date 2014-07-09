@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="us">
+<html lang="us" ng-app="FlowApp" ng-controller="FlowCtrl">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Flow</title>
@@ -8,7 +8,6 @@
     <script src="../js/jquery-1.11.1.min.js"></script>
     <script src="../js/jquery-ui.min.js"></script>
     <script src="../js/angular.min.js"></script>
-    <script src="../js/flow.js"></script>
   </head>
   <body>
     <div id="primary-tabs">
@@ -22,8 +21,15 @@
 
     <div id='console' class="ui-widget-content">
       <h3 class='ui-widget-header'>Console</h3>
-      <textarea id='console-input' cols=80 rows=4></textarea>
-      <textarea id='console-output' disabled=true cols=80 rows=4></textarea>
+      <textarea id='console-input' cols=80 rows=4
+		ng-model="consoleInput"
+		ng-change="store('console input', consoleInput)",
+		<!-- ng-keypress="evalConsole($event)" -->
+		></textarea>
+      <textarea id='console-output' disabled=true cols=80 rows=4
+		ng-model='consoleOutput'></textarea>
     </div>
+
+    <script src="../js/flow.js"></script>
   </body>
 </html>
