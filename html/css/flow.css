@@ -1,18 +1,44 @@
 html, body {
-    margin: 0;
     height: 100%;
-}
-
-#console-splitter {
-    height: 100%;
-    /* margin: 0.5em; */
 }
 
 #console {
-    /* margin: 1.5em; */
-    /* height: 10em; */
+    margin: 10px;
 }
 
-#console h3 {
-    margin: 0;
+#page {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+#primary-tabs {
+    display: table-row;
+    height: 100%;
+}
+
+#footer {
+    display: table-row;
+}
+
+#pt-margin {
+    margin: 10px;
+    height: 100%;
+}
+
+#primary-tabs > #pt-margin > .ng-isolate-scope {
+    display: table;
+    border-collapse: collapse;
+    height: 100%;
+    width: 100%;
+}
+
+#primary-tabs .nav {
+    display: table-row;
+}
+
+#primary-tabs .tab-content {
+    display: table-row;
+    height: 100%;
+    background: lightgray;
 }
