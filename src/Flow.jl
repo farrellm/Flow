@@ -1,11 +1,11 @@
 module Flow
 
-using HttpCommon, Morsel, JSON
-
+using DataStructures, HttpCommon, Morsel, JSON
 
 app = Morsel.app()
 state = {:console => {:input => "",
-                      :output => ""}}
+                      :output => ""},
+         :dirty_queue => Queue(Array{Symbol,1})}
 
 
 ## utility
@@ -72,7 +72,7 @@ get(app, "/eval") do req, res
     text = urlparam(req, :text)
     ptext = parse(text)
     r = eval(ptext)
-    json(r)
+    "ok"
 end
 
 put(app, "/store") do req, res
@@ -83,17 +83,42 @@ put(app, "/store") do req, res
 end
 
 get(app, "/fetch") do req, res
+    ks = map(symbol, split(urlparam(req, :keys), ' '))
+    string(fetch(ks))
+end
+
+get(app, "/fetch-json") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
     ks = map(symbol, split(urlparam(req, :keys), ' '))
     json(fetch(ks))
+end
+
+get(app, "/dirty") do req, res
+    res.headers["Content-Type"] = mimetypes["json"]
+
+    if isempty(state[:dirty_queue])
+        json({:status => :empty})
+    else
+        ks = dequeue!(state[:dirty_queue])
+        json({:status => :ready,
+              :keys => ks,
+              :val => fetch(ks)})
+    end
 end
 
 
 ## process
 start() = Morsel.start(app, 8000)
 
-store(ks, v) = assoc_in!(state, ks, v)
+function store(ks, v)
+    assoc_in!(state, ks, v)
+    mark_dirty!(ks)
+end
 fetch(ks) = get_in(state, ks)
+
+function mark_dirty!(ks)
+    enqueue!(state[:dirty_queue], ks)
+end
 
 eval_console() = store([:console, :output],
                        eval(parse(fetch([:console, :input]))))
