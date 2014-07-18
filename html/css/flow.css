@@ -19,6 +19,13 @@ html, body {
 
 #footer {
     display: table-row;
+    border-spacing: 0 10px;
+}
+
+.spacer {
+    display: table-row;
+    height: 10px;
+    width: 10px;
 }
 
 #pt-margin {
@@ -40,5 +47,16 @@ html, body {
 #primary-tabs .tab-content {
     display: table-row;
     height: 100%;
-    background: lightgray;
+    /* background: lightgray; */
+}
+
+.tab-content > .tab-pane {
+    height: 100%;
+}
+
+.tab-content > .tab-pane > .panel {
+    height: 100%;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top-color: transparent;
 }

@@ -5,7 +5,9 @@ using DataStructures, HttpCommon, Morsel, JSON
 app = Morsel.app()
 state = {:console => {:input => "",
                       :output => ""},
-         :dirty_queue => Queue(Array{Symbol,1})}
+         :tabs => Dict{Any, Any}[],
+         :dirty_queue => Array{Symbol,1}[]
+         }
 
 
 ## utility
@@ -57,6 +59,12 @@ get(app, "/static/css/<path::%.*>") do req, res
     load_static("html/css/" * routeparam(req, :path))
 end
 
+get(app, "/static/fonts/<path::%.*>") do req, res
+    tokens = split(routeparam(req, :path), ".")
+    res.headers["Content-Type"] = mimetypes[tokens[2]]
+    load_static("html/fonts/" * routeparam(req, :path))
+end
+
 get(app, "/static/images/<path::%.*>") do req, res
     res.headers["Content-Type"] = mimetypes["png"]
     load_static("html/images/" * routeparam(req, :path))
@@ -71,8 +79,7 @@ get(app, "/eval") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
     text = urlparam(req, :text)
     ptext = parse(text)
-    r = eval(ptext)
-    "ok"
+    json({:value => eval(ptext)})
 end
 
 put(app, "/store") do req, res
@@ -83,14 +90,9 @@ put(app, "/store") do req, res
 end
 
 get(app, "/fetch") do req, res
-    ks = map(symbol, split(urlparam(req, :keys), ' '))
-    string(fetch(ks))
-end
-
-get(app, "/fetch-json") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
     ks = map(symbol, split(urlparam(req, :keys), ' '))
-    json(fetch(ks))
+    json({:value => fetch(ks)})
 end
 
 get(app, "/dirty") do req, res
@@ -99,10 +101,10 @@ get(app, "/dirty") do req, res
     if isempty(state[:dirty_queue])
         json({:status => :empty})
     else
-        ks = dequeue!(state[:dirty_queue])
+        ks = shift!(state[:dirty_queue])
         json({:status => :ready,
               :keys => ks,
-              :val => fetch(ks)})
+              :value => fetch(ks)})
     end
 end
 
@@ -117,10 +119,16 @@ end
 fetch(ks) = get_in(state, ks)
 
 function mark_dirty!(ks)
-    enqueue!(state[:dirty_queue], ks)
+    push!(state[:dirty_queue], ks)
 end
 
 eval_console() = store([:console, :output],
-                       eval(parse(fetch([:console, :input]))))
+                       json(eval(parse(fetch([:console, :input])))))
+
+function new_tab(name)
+    ts = fetch([:tabs])
+    push!(ts, {:name => name, :active => true})
+    store([:tabs], ts)
+end
 
 end # module

@@ -16,14 +16,18 @@
       <div id="primary-tabs">
 	<div id="pt-margin">
 	  <tabset>
-	    <tab ng-repeat="pt in primaryTabs" heading="{{pt.name}}"
-		 active="tab.active" disabled="tab.disabled">
-	      {{pt.name}}
+	    <tab ng-repeat="pt in primaryTabs" heading="{{pt.name}}" active="pt.active">
+	      <div class="panel panel-default">{{pt.name}}</div>
 	    </tab>
-	    
+	    <tab select="newTab()">
+	      <tab-heading><i class="glyphicon glyphicon-plus-sign"></i></tab-heading>
+	    </tab>
 	  </tabset>
 	</div>
       </div>
+
+      <!-- <div class="spacer-row"></div> -->
+      <div class="spacer"></div>
       
       <div id="footer">
 	<div id='console' class="footer panel panel-default"

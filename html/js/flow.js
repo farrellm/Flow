@@ -5,23 +5,35 @@ var app = angular.module('FlowApp', ['ui.bootstrap'])
 app.controller("FlowCtrl", ['$scope', '$http', '$timeout', function ($scope, $http, $timeout) {
     $scope.console = {input: '',
                       output: ''};
-    $scope.primaryTabs = [{name: 'Root'}, {name: 'New'}]
+    // $scope.primaryTabs = [{name: 'Root', active: true}, {name: 'New'}]
+    $scope.primaryTabs = [{name: '-', active: true}];
+
+    // fetch($http, 'tabs', function (data) {
+    // 	alert(data)
+    //     $scope.console.input = data;
+    // 	if (data.length == 0)
+    // 	    $scope.eval('new_tab("new")')
+    // 	else
+    // 	    $scope.primaryTabs = data
+    // })
 
     // utility
     $scope.fetch = function(ks) { fetch($http, ks) }
     $scope.store = function(ks, v) { store($http, ks, v) }
     $scope.eval = function(text) { evaluate($http, text) }
 
+    $scope.newTab = function() { alert("new tab") }
+
     // poll for dirty state
     function tick() {
-        dirty($http, function(data) {
-            if (data.status == 'empty') {
+        dirty($http, function(res) {
+            if (res.status == 'empty') {
                 $timeout(tick, 100);
             } else {
-                if (arraysEqual(data.keys, ["console", "input"]))
-                    $scope.console.input = data.val
-                else if (arraysEqual(data.keys, ["console", "output"]))
-                    $scope.console.output = data.val
+                if (arraysEqual(res.keys, ["console", "input"]))
+                    $scope.console.input = res.value
+                else if (arraysEqual(res.keys, ["console", "output"]))
+                    $scope.console.output = res.value
 
                 $timeout(tick, 1);
             }
@@ -38,14 +50,14 @@ app.controller("ConsoleCtrl", ['$scope', '$http', function ($scope, $http) {
     }
 
     // initialization
-    fetch($http, 'console input', function (data) {
-        $scope.console.input = data;
+    $scope.isCollapsed = true
+    fetch($http, 'console input', function (res) {
+        $scope.console.input = res.value
     })
-    fetch($http, 'console output', function (data) {
-        $scope.console.output = data;
+    fetch($http, 'console output', function (res) {
+        $scope.console.output = res.value
     })
 }])
-
 
 function fetch($http, ks, success, error) {
     var res = $http.get("../../fetch", {params: {keys: ks}});
