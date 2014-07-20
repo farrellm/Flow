@@ -1,12 +1,17 @@
 module Flow
 
-using DataStructures, HttpCommon, Morsel, JSON
+using DataStructures, HttpCommon, Morsel, JSON, Logging
 
 app = Morsel.app()
 state = {:console => {:input => "",
                       :output => ""},
-         :tabs => Dict{Any, Any}[],
-         :dirty_queue => Array{Symbol,1}[]
+
+         :tabs => {{:id => -1,
+                    :name => "test"}},
+         :next_tab_id => 0,
+         :active_tab_id => -1,
+
+         :dirty_queue => {}
          }
 
 
@@ -77,21 +82,24 @@ end
 
 get(app, "/eval") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
-    text = urlparam(req, :text)
+    text = decodeURI(urlparam(req, :text))
+    info("EVAL " * text)
     ptext = parse(text)
     json({:value => eval(ptext)})
 end
 
 put(app, "/store") do req, res
     ks = map(symbol, split(urlparam(req, :keys), ' '))
-    v = urlparam(req, :val)
-    store(ks, v)
+    v = decodeURI(urlparam(req, :val))
+    info(@sprintf("STORE %s => %s", ks, v))
+    store_silent!(ks, v)
     "ok"
 end
 
 get(app, "/fetch") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
     ks = map(symbol, split(urlparam(req, :keys), ' '))
+    info(@sprintf("FETCH %s", ks))
     json({:value => fetch(ks)})
 end
 
@@ -102,18 +110,29 @@ get(app, "/dirty") do req, res
         json({:status => :empty})
     else
         ks = shift!(state[:dirty_queue])
-        json({:status => :ready,
+        res = json({:status => :ready,
               :keys => ks,
               :value => fetch(ks)})
+        info(@sprintf("DIRTY %s", ks))
+        debug(@sprintf("DIRTY => %s", res))
+        res
     end
 end
 
 
 ## process
-start() = Morsel.start(app, 8000)
+function start(loglevel=INFO)
+    Logging.configure(level=loglevel)
+    Morsel.start(app, 8000)
+end
 
-function store(ks, v)
+function store_silent!(ks, v)
+    debug(@sprintf("store_silent! %s => %s", ks, v))
     assoc_in!(state, ks, v)
+end
+function store!(ks, v)
+    debug(@sprintf("store! %s => %s", ks, v))
+    store_silent!(ks, v)
     mark_dirty!(ks)
 end
 fetch(ks) = get_in(state, ks)
@@ -122,13 +141,22 @@ function mark_dirty!(ks)
     push!(state[:dirty_queue], ks)
 end
 
-eval_console() = store([:console, :output],
-                       json(eval(parse(fetch([:console, :input])))))
+eval_console() = store!([:console, :output],
+                        json(eval(parse(fetch([:console, :input])))))
 
 function new_tab(name)
     ts = fetch([:tabs])
-    push!(ts, {:name => name, :active => true})
-    store([:tabs], ts)
+    id = fetch([:next_tab_id])
+    store_silent!([:next_tab_id], id + 1)
+
+    info(@sprintf("new_tab: '%s' (%i)", name, id))
+
+    push!(ts, {:id => id,
+               :name => name,
+               :active => true})
+
+    store!([:tabs], ts)
+    id
 end
 
 end # module

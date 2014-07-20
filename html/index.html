@@ -12,18 +12,49 @@
   </head>
   <body>
     <div id="page">
-      
       <div id="primary-tabs">
 	<div id="pt-margin">
 	  <tabset>
-	    <tab ng-repeat="pt in primaryTabs" heading="{{pt.name}}" active="pt.active">
-	      <div class="panel panel-default">{{pt.name}}</div>
+	    <tab ng-repeat="pt in primaryTabs"
+		 ng-controller="PrimaryTabCtrl"
+		 ng-init="init(pt.id)"
+
+		 heading={{pt.name}} active="pt.active"
+		 select="onSelect()"
+		 >
+	      <div class="panel panel-default">
+		<div class="panel-body">
+		  <div> {{pt.name}} </div>
+		  <div> {{pt.id}} </div>
+		</div>
+	      </div>
 	    </tab>
-	    <tab select="newTab()">
+	    <tab id="new-tab-tab" ng-click="newTab()">
 	      <tab-heading><i class="glyphicon glyphicon-plus-sign"></i></tab-heading>
 	    </tab>
 	  </tabset>
 	</div>
+
+	<script type="text/ng-template" id="newTabContent.html">
+	  <div class="modal-header">
+	    <h3 class="modal-title">New tab</h3>
+	  </div>
+	  <form role="form">
+	    <div class="modal-body">
+	      <div class="form-group">
+		<label for="tab-name">Name</label>
+		<input type="text" class="form-control" id="tab-name-input" placeholder="name"
+		       ng-model="name.value">
+	      </div>
+	    </div>
+	    <div class="modal-footer">
+              <button type="submit" class="btn btn-primary"
+		      ng-click="ok()">OK</button>
+              <button type="button" class="btn btn-warning"
+		      ng-click="cancel()">Cancel</button>
+            </div>
+	  </form>
+	</script>
       </div>
 
       <!-- <div class="spacer-row"></div> -->
@@ -35,7 +66,7 @@
 	  <div class="panel-body" collapse="isCollapsed">
 	    <textarea id='console-input' cols=80 rows=4
 		      ng-model="console.input"
-		      ng-change="store('console input', console.input)",
+		      ng-change="store('console input', console.input)"
 		      ng-keypress="evalConsole($event)"
 		      ></textarea>
 	    <textarea id='console-output' disabled=true cols=80 rows=4
@@ -48,7 +79,7 @@
       </div>
 
     </div>
-      
+
     <script src="../js/flow.js"></script>
   </body>
 </html>
