@@ -55,27 +55,24 @@ end
 
 
 ## rest
-get(app, "/static/html/<path::%.*>") do req, res
+get(app, "/html/<path::%.*>") do req, res
     load_static("html/" * routeparam(req, :path))
 end
 
-get(app, "/static/css/<path::%.*>") do req, res
+get(app, "/components/<pkg::%.*>/<file::%.*>") do req, res
+    pkg = routeparam(req, :pkg)
+    file = routeparam(req, :file)
+    ext = split(file, ".")[2]
+    res.headers["Content-Type"] = mimetypes[ext]
+    load_static(@sprintf("bower_components/%s/%s", pkg, file))
+end
+
+get(app, "/css/<path::%.*>") do req, res
     res.headers["Content-Type"] = mimetypes["css"]
     load_static("html/css/" * routeparam(req, :path))
 end
 
-get(app, "/static/fonts/<path::%.*>") do req, res
-    tokens = split(routeparam(req, :path), ".")
-    res.headers["Content-Type"] = mimetypes[tokens[2]]
-    load_static("html/fonts/" * routeparam(req, :path))
-end
-
-get(app, "/static/images/<path::%.*>") do req, res
-    res.headers["Content-Type"] = mimetypes["png"]
-    load_static("html/images/" * routeparam(req, :path))
-end
-
-get(app, "/static/js/<path::%.*>") do req, res
+get(app, "/js/<path::%.*>") do req, res
     res.headers["Content-Type"] = mimetypes["js"]
     load_static("html/js/" * routeparam(req, :path))
 end
