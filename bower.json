@@ -1,0 +1,21 @@
+{
+  "name": "Flow",
+  "version": "0.0.0",
+  "homepage": "https://github.com/farrellm/Flow",
+  "authors": [
+    "Matthew Farrell <farrellm@alum.mit.edu>"
+  ],
+  "description": "Excel + OneNote + Julia",
+  "keywords": [
+    "julia",
+    "spreadsheet"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
