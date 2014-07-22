@@ -77,7 +77,7 @@ var FlowCtrl = function($scope, $http, $timeout, $modal) {
                 else
                     alert("Unknown key: " + JSON.stringify(res.keys))
 
-                $timeout(tick, 1);
+                $timeout(tick, 10);
             }
         })
     }
@@ -110,7 +110,7 @@ app.controller("ConsoleCtrl", function ($scope, $http) {
     })
 })
 
-var NewTabCtrl = function ($scope, $modalInstance) {
+var NewTabCtrl = function ($scope, $modalInstance, $timeout) {
     $scope.name = {value: ""}
 
     $scope.ok = function () {
@@ -120,6 +120,10 @@ var NewTabCtrl = function ($scope, $modalInstance) {
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel')
     }
+
+    $timeout(function() {
+	angular.element('#tab-name-input').trigger('focus')
+    }, 100)
 }
 
 function fetch($http, ks, success, error) {
