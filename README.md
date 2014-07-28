@@ -2,5 +2,5 @@
 
 ```cd``` to the root directory of the package and start the server with
 ```
-python -m http.server
+python3 -m http.server 8000 --cgi
 ```
