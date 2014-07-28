@@ -1,0 +1,53 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="console-service" attributes="input output">
+  <template>
+    <style>
+    :host {
+      display: none;
+    }
+    </style>
+
+    <core-ajax id="initInput"
+       auto
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "fetch", "keys": "console input"}'
+       handleAs="json"
+       on-core-response="{{initInputHandler}}"></core-ajax>
+
+    <core-ajax id="initOutput"
+       auto
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "fetch", "keys": "console output"}'
+       handleAs="json"
+       on-core-response="{{initOutputHandler}}"></core-ajax>
+
+    <core-ajax id="updateInput"
+       auto
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "store", "keys": "console input", "val": "{{input | encode}}"}'
+       handleAs="json"</core-ajax>
+  </template>
+
+  <script>
+    Polymer('console-service', {
+      created: function() {
+        this.input = ''
+        this.output = ''
+      },
+
+      initInputHandler: function() {
+        this.input = this.$.initInput.response.value
+      },
+
+      initOutputHandler: function() {
+        this.output = this.$.initOutput.response.value
+      },
+
+      encode: function(val) {
+       return encodeURIComponent(val)
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,96 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
+
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
+<link rel="import" href="console-service.html">
+
+<polymer-element name="console-card">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 100%;
+        font-size: 1.2rem;
+        font-weight: 300;
+
+        position: absolute;
+        bottom: 0;
+      }
+      
+      .margin {
+        background-color: white;
+        margin: 10px;
+      }
+
+      .padding {
+        padding: 10px;
+      }
+
+      .padding > paper-input {
+        width: 100%;
+      }
+    </style>
+
+    <core-ajax id="eval"
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "eval", "text": "eval_console()"}'
+       handleAs="json"
+       on-core-response="{{evalHandler}}"></core-ajax>
+
+    <core-ajax id="updateOutput"
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "fetch", "keys": "console output"}'
+       handleAs="json"
+       on-core-response="{{updateOutputHandler}}"></core-ajax>
+
+    <console-service id="service" input="{{input}}" output="{{output}}">
+    </console-service>
+
+    <div class="margin">
+      <paper-shadow z="1">
+	<core-toolbar>
+	  <paper-icon-button icon="menu"
+			     on-tap="{{toggleConsole}}">
+	  </paper-icon-button>
+	  <span flex>Console</span>
+	</core-toolbar>
+	<core-collapse id="collapse" opened>
+	  <div class="padding" layout vertical center>
+    	    <paper-input multiline rows="2" inputValue="{{input}}" on-keypress='{{keypressHandler}}'>
+            </paper-input>
+    	    <paper-input rows="2" inputValue="{{output}}" disabled></paper-input>
+	  </div>
+	</core-collapse>
+      </paper-shadow>
+    </div>
+
+  </template>
+  <script>
+    Polymer('console-card', {
+	toggleConsole: function(event, detail, sender) {
+            this.$.collapse.toggle()
+	},
+
+        keypressHandler: function(event, detail, sender) {
+          if ((event.ctrlKey && event.keyCode == 13) || event.keyCode == 10) {
+            this.$.eval.go()
+          }
+        },
+
+        evalHandler: function() {
+          this.$.updateOutput.go()
+        },
+
+        updateOutputHandler: function() {
+          this.output = this.$.updateOutput.response.value
+        }
+    });
+  </script>
+</polymer-element>

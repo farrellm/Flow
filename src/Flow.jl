@@ -55,28 +55,6 @@ end
 
 
 ## rest
-get(app, "/html/<path::%.*>") do req, res
-    load_static("html/" * routeparam(req, :path))
-end
-
-get(app, "/components/<pkg::%.*>/<file::%.*>") do req, res
-    pkg = routeparam(req, :pkg)
-    file = routeparam(req, :file)
-    ext = split(file, ".")[2]
-    res.headers["Content-Type"] = mimetypes[ext]
-    load_static(@sprintf("bower_components/%s/%s", pkg, file))
-end
-
-get(app, "/css/<path::%.*>") do req, res
-    res.headers["Content-Type"] = mimetypes["css"]
-    load_static("html/css/" * routeparam(req, :path))
-end
-
-get(app, "/js/<path::%.*>") do req, res
-    res.headers["Content-Type"] = mimetypes["js"]
-    load_static("html/js/" * routeparam(req, :path))
-end
-
 get(app, "/eval") do req, res
     res.headers["Content-Type"] = mimetypes["json"]
     text = decodeURI(urlparam(req, :text))
@@ -88,7 +66,11 @@ end
 put(app, "/store") do req, res
     ks = map(symbol, split(urlparam(req, :keys), ' '))
     v = decodeURI(urlparam(req, :val))
-    info(@sprintf("STORE %s => %s", ks, v))
+    if v == None
+        println("none")
+        v = ""
+    end
+    info(@sprintf("STORE %s => %s (%s)", ks, v, typeof(v)))
     store_silent!(ks, v)
     "ok"
 end
@@ -120,7 +102,7 @@ end
 ## process
 function start(loglevel=INFO)
     Logging.configure(level=loglevel)
-    Morsel.start(app, 8000)
+    Morsel.start(app, 8080)
 end
 
 function store_silent!(ks, v)
