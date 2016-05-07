@@ -7,7 +7,11 @@ state = {:console => {:input => "",
                       :output => ""},
 
          :tabs => {{:id => -1,
-                    :name => "test"}},
+                    :name => "test"
+                    :values => [{:name => "x",
+                                 :type => :constant,
+                                 :value => 8
+                                 }]}},
          :next_tab_id => 0,
          :active_tab_id => -1,
 
@@ -120,8 +124,22 @@ function mark_dirty!(ks)
     push!(state[:dirty_queue], ks)
 end
 
+function sshow(val)
+    ## http://thenewphalls.wordpress.com/2014/03/21/capturing-output-in-julia/
+    originalSTDOUT = STDOUT
+    (outRead, outWrite) = redirect_stdout()
+    show(val)
+    close(outWrite)
+    
+    data = readavailable(outRead)
+    close(outRead)
+    redirect_stdout(originalSTDOUT)
+    
+    data
+end
+
 eval_console() = store!([:console, :output],
-                        json(eval(parse(fetch([:console, :input])))))
+                        sshow(eval(parse(fetch([:console, :input])))))
 
 function new_tab(name)
     ts = fetch([:tabs])
@@ -136,6 +154,26 @@ function new_tab(name)
 
     store!([:tabs], ts)
     id
+end
+
+find_named(ms, n) = filter(m-> m[:name] == n, ms)
+
+function tab_value(tab, value)
+    tabs = find_named(state[:tabs], tab)
+    if length(tabs) == 0
+        throw("no such tab " * tab)
+    elseif length(tabs) > 1
+        throw("multiple tabs named " * tab)
+    end
+    
+    vals = find_named(tabs[1], value)
+    if length(vals) == 0
+        throw("no such value " * value)
+    elseif length(vals) > 1
+        throw("multiple values named " * value)
+    end
+
+    vals[1]
 end
 
 end # module

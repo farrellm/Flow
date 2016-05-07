@@ -9,16 +9,16 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 
-<link rel="import" href="console-service.html">
+<!-- <link rel="import" href="console-service.html"> -->
 
-<polymer-element name="console-card">
+<polymer-element name="value-card">
   <template>
     <style>
       :host {
         display: block;
         width: 100%;
-        /* font-size: 1.2rem; */
-        /* font-weight: 300; */
+g        font-size: 1.2rem;
+        font-weight: 300;
 
         position: absolute;
         bottom: 0;
@@ -62,11 +62,11 @@
 	  </paper-icon-button>
 	  <span flex>Console</span>
 	</core-toolbar>
-	<core-collapse id="collapse" opened="false">
+	<core-collapse id="collapse" closedx>
 	  <div class="padding" layout vertical center>
-    	    <paper-input inputValue="{{input}}" on-keypress='{{keypressHandler}}'></paper-input>
-    	    <paper-input inputValue="{{output}}" disabled></paper-input>
-	    <!--  multiline rows="2" -->
+    	    <paper-input multiline rows="2" inputValue="{{input}}" on-keypress='{{keypressHandler}}'>
+            </paper-input>
+    	    <paper-input rows="2" inputValue="{{output}}" disabled></paper-input>
 	  </div>
 	</core-collapse>
       </paper-shadow>

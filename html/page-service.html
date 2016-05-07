@@ -1,0 +1,37 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="page-service" attributes="pages">
+  <template>
+    <style>
+    :host {
+      display: none;
+    }
+    </style>
+
+    <core-ajax id="initPages"
+       auto
+       url="../cgi-bin/julia.py"
+       params='{"cmd": "eval", "text": "map((m) -> m[:name], fetch([:tabs]))"}'
+       handleAs="json"
+       on-core-response="{{initPagesHandler}}"></core-ajax>
+
+    <!-- <core-ajax id="updateInput" -->
+    <!--    auto -->
+    <!--    url="../cgi-bin/julia.py" -->
+    <!--    params='{"cmd": "store", "keys": "console input", "val": "{{input | encode}}"}' -->
+    <!--    handleAs="json"</core-ajax> -->
+  </template>
+
+  <script>
+    Polymer('page-service', {
+      created: function() {
+        this.pages = []
+      },
+
+      initPagesHandler: function() {
+        this.pages = this.$.initPages.response.value
+      }
+    });
+  </script>
+</polymer-element>

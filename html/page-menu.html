@@ -1,0 +1,54 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/core-item/core-item.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-menu/core-submenu.html">
+
+<link rel="import" href="page-service.html">
+
+<polymer-element name="page-menu" attributes="file">
+  <template>
+    <style>
+      :host {}
+
+      /* core-menu { */
+      /*     margin: 12px 0px !important; */
+      /* } */
+
+      /* core-menu core-item { */
+      /*     padding: 0px 12px !important; */
+      /* } */
+
+      /* core-menu core-item.core-selected { */
+      /*     background-color: #DEDEDE; */
+      /*     font-weight: normal !important; */
+      /* } */
+    </style>
+
+    <!-- <core-ajax id="eval" -->
+    <!--    url="../cgi-bin/julia.py" -->
+    <!--    params='{"cmd": "eval", "text": "eval_console()"}' -->
+    <!--    handleAs="json" -->
+    <!--    on-core-response="{{evalHandler}}"></core-ajax> -->
+
+    <page-service id="service" pages="{{pages}}">
+    </page-service>
+
+    <core-menu theme="core-dark-theme" selectedItem="{{file}}">
+      <template repeat="{{page in pages}}">
+	<core-item label="{{page}}"></core-item>
+      </template>
+	
+      <!-- <core-submenu icon="settings" label="Topics" selected="0"> -->
+      <!-- 	<core-item label="Topic 1"></core-item> -->
+      <!-- 	<core-item label="Topic 2"></core-item> -->
+      <!-- </core-submenu> -->
+    </core-menu>
+
+  </template>
+
+  <script>
+    Polymer("page-menu", {
+    });
+  </script>
+</polymer-element>

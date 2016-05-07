@@ -1,0 +1,48 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
+
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
+<polymer-element name="flow-page" attributes="file">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 100%;
+      }
+      
+      .margin {
+        margin: 10px;
+      }
+
+    </style>
+
+    <div class="margin" layout vertical>
+      <template repeat="{{cardData in file | loadCardData}}">
+        <div>{{cardData}}</div>
+      </template>
+    </div>
+
+  </template>
+  <script>
+    Polymer('flow-page', {
+      created: function() {
+        // this.file='-'
+      },
+
+      loadCardData: function(val) {
+        if (! val) {
+          return []
+        } else {
+          return [val, val, val]
+        }
+      }
+    });
+  </script>
+</polymer-element>

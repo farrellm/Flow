@@ -19,7 +19,9 @@ def do_julia():
     cmd = form.getvalue("cmd")
 
     if cmd == 'eval':
-        params = urllib.parse.urlencode({"text": form.getvalue("text")})
+        text = urllib.parse.quote(form.getvalue("text"))
+        print("julia raw eval: {r}".format(r=text), file=sys.stderr)
+        params = urllib.parse.urlencode({"text": text})
     elif cmd == 'store':
         method = 'PUT'
         val = form.getvalue("val")
